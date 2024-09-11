@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataCollectionRules_dcr_eventlogs_name": {
+            "defaultValue": "dcr-eventlogs",
+            "type": "String"
+        },
+        "workspaces_la_azuremonitor_externalid": {
+            "defaultValue": "/subscriptions/cd37e71c-3416-4563-995c-e77521c28a6a/resourceGroups/rg-azuremonitor/providers/microsoft.operationalinsights/workspaces/la-azuremonitor",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2023-03-11",
+            "name": "[parameters('dataCollectionRules_dcr_eventlogs_name')]",
+            "location": "westeurope",
+            "kind": "Windows",
+            "properties": {
+                "dataSources": {
+                    "windowsEventLogs": [
+                        {
+                            "streams": [
+                                "Microsoft-Event"
+                            ],
+                            "xPathQueries": [
+                                "Application!*[System[(Level=1 or Level=2 or Level=3)]]",
+                                "System!*[System[(Level=1 or Level=2 or Level=3)]]"
+                            ],
+                            "name": "eventLogsDataSource"
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[parameters('workspaces_la_azuremonitor_externalid')]",
+                            "name": "la--2037813720"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-Event"
+                        ],
+                        "destinations": [
+                            "la--2037813720"
+                        ],
+                        "transformKql": "source",
+                        "outputStream": "Microsoft-Event"
+                    }
+                ]
+            }
+        }
+    ]
+}

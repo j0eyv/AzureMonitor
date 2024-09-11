@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataCollectionRules_dcr_performance_name": {
+            "defaultValue": "dcr-performance",
+            "type": "String"
+        },
+        "workspaces_la_azuremonitor_externalid": {
+            "defaultValue": "/subscriptions/cd37e71c-3416-4563-995c-e77521c28a6a/resourceGroups/rg-azuremonitor/providers/microsoft.operationalinsights/workspaces/la-azuremonitor",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2023-03-11",
+            "name": "[parameters('dataCollectionRules_dcr_performance_name')]",
+            "location": "westeurope",
+            "properties": {
+                "description": "Data collection rule for VM Insights.",
+                "dataSources": {
+                    "performanceCounters": [
+                        {
+                            "streams": [
+                                "Microsoft-InsightsMetrics"
+                            ],
+                            "samplingFrequencyInSeconds": 60,
+                            "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                            ],
+                            "name": "VMInsightsPerfCounters"
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[parameters('workspaces_la_azuremonitor_externalid')]",
+                            "name": "VMInsightsPerf-Logs-Dest"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-InsightsMetrics"
+                        ],
+                        "destinations": [
+                            "VMInsightsPerf-Logs-Dest"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
